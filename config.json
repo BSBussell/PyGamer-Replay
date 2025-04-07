@@ -1,7 +1,12 @@
 {
     "Compilations": [
-        "P1_Comp",
-        "P2_Comp",
+        "P1 Comp",
+        "P2 Comp",
         "Global"
-    ]
+    ],
+    
+    "FFMpeg": {
+        "Path": "/opt/homebrew/bin/ffmpeg",
+        "Args": []
+    }
 }

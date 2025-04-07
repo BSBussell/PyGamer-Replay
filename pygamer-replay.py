@@ -9,13 +9,15 @@ import random              # Shuffle mode
 import json                # For loading config.json
 import shutil              # For moving files
 
-from stitch_videos import stitch_videos_async, StitchManager # Import the async stitch_videos function
+from stitch_videos import stitch_videos_async, StitchManager, load_config # Import the async stitch_videos function
 
 ## Global Hotkeys
 # Clear Hotkey
 clear_hotkey_id = None
 # Build Compilation Hotkey
 build_comp_hotkey_id = None
+
+
 
 """Sets the media source in OBS with the given file path."""
 def set_media(source_name, path):
@@ -385,6 +387,7 @@ def script_save(settings):
     for each in replay_comps:
         each.save_hotkey(settings)
 
+
 replay_comps = []
 
 # Load replay compilations from config.json
@@ -392,7 +395,13 @@ config_path = os.path.join(os.path.dirname(__file__), "config.json")
 if os.path.exists(config_path):
     with open(config_path, "r") as config_file:
         config = json.load(config_file)
+        
+        # Read config for replay compilations
         for comp_name in config.get("Compilations", []):
             replay_comps.append(ReplayCompilation(comp_name))
+
+        # Give the video stitcher the config data
+        load_config(config)
+
 else:
     obs.script_log(obs.LOG_WARNING, "config.json not found. No replay compilations loaded.")

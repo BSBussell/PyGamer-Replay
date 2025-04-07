@@ -5,7 +5,34 @@ import obspython as obs
 import threading
 import queue
 import time
+import json
 from typing import Optional, Dict, Any, Callable, List
+
+
+# Global variable to store JSON configuration
+config_data = {}
+
+def load_config(config: Optional[Dict[str, Any]] = None) -> None:
+    """Load configuration from a JSON file."""
+    global config_data
+
+    # If a config dictionary is passed, use it directly
+    if config is not None:
+        config_data = config
+
+        # This is just a small premature optimization to avoid loading the config file again if it's already provided.
+        return
+
+    config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r") as config_file:
+                config_data = json.load(config_file)
+                obs.script_log(obs.LOG_INFO, f"Configuration loaded: {config_data}")
+        except Exception as e:
+            obs.script_log(obs.LOG_ERROR, f"Failed to load config.json: {e}")
+    else:
+        obs.script_log(obs.LOG_WARNING, "config.json not found. Using default settings.")
 
 
 class StitchManager:
@@ -102,15 +129,32 @@ def stitch_videos_async(
                 for video in video_files:
                     f.write(f"file '{os.path.join(folder_path, video)}'\n")
 
+            # Get ffmpeg configs
+            ffmpeg_config = config_data.get("FFMpeg", {})
+
+
+            # Get ffmpeg path from config
+            ffmpeg_path = ffmpeg_config.get("Path", "ffmpeg")
+            if not os.path.exists(ffmpeg_path):
+                obs.script_log(obs.LOG_ERROR, f"FFmpeg path not found: {ffmpeg_path}. Please check your config.")
+                return
+
+            
+
             # FFmpeg command to concatenate videos
             ffmpeg_cmd = [
-                "/opt/homebrew/bin/ffmpeg",
+                ffmpeg_path,
                 "-f", "concat",
                 "-safe", "0",
                 "-i", list_file_path,
-                "-c", "copy",
-                output_path
+                "-c", "copy"
             ]
+
+            # Append user specified FFmpeg options from config if available
+            ffmpeg_cmd.extend(ffmpeg_config.get("Args", []))
+
+            # Set output file path
+            ffmpeg_cmd.append(output_path)
 
             # Run FFmpeg
             result = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, check=True)
@@ -166,4 +210,6 @@ def main() -> None:
         print("Failed to start video stitching.")
 
 if __name__ == "__main__":
+    # Call load_config when the script is executed
+    load_config()
     main()
