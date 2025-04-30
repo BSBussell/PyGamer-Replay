@@ -50,8 +50,8 @@ Each **Replay Compilation** has a few key settings that must be configured befor
 ### Hotkey Functions
 You can configure hotkeys within OBS Studio to trigger various script functions. I recommend using a Stream Deck or similar macro device for ease of use.
 
-#### Compilation Specific Hotkeys
-> These hotkeys are specific to each compilation.
+#### Compilation-Specific Hotkeys
+These hotkeys are specific to each compilation.
 | Hotkey | Function |
 |--------|----------|
 | Save Replay | Saves the current replay to the folder. |
@@ -60,7 +60,7 @@ You can configure hotkeys within OBS Studio to trigger various script functions.
 
 
 #### Global Hotkeys
-> These hotkeys are global and perform action across all compilations.
+These hotkeys are global and perform action across all compilations.
 | Hotkey | Function |
 |--------|----------|
 | Clear All Replays | Deletes all replays in all folders. |
